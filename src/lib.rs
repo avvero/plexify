@@ -16,9 +16,8 @@ mod tests {
 
     fn create_temp_files(paths: Vec<&str>) {
         for path in paths {
-
-
-            let dir = Path::new(path);
+            let dir_path = get_dirs_from_file_name(path);
+            let dir = Path::new(&dir_path);
             match fs::create_dir(&dir) {
                 Ok(_) => println!("Successfully created temp directory"),
                 Err(e) => println!("Error creating temp directory: {}", e),
@@ -62,13 +61,13 @@ mod tests {
     fn method_renames_file_if_file_exists() {
         let path = vec![
             "temp/Tate_no_Yuusha_no_Nariagari_[01]_[AniLibria]_[720p].mkv.txt",
-            "temp/dir1/Tate_no_Yuusha_no_Nariagari_[01]_[AniLibria]_[720p].mkv.txt",
-            "temp/dir2/Tate_no_Yuusha_no_Nariagari_[01]_[AniLibria]_[720p].mkv.txt",
-            "temp/dir2/dir3/Tate_no_Yuusha_no_Nariagari_[01]_[AniLibria]_[720p].mkv.txt"
+            "temp/dir1/Tate_no_Yuusha_no_Nariagari_[02]_[AniLibria]_[720p].mkv.txt",
+            "temp/dir2/Tate_no_Yuusha_no_Nariagari_[03]_[AniLibria]_[720p].mkv.txt",
+            "temp/dir2/dir3/Tate_no_Yuusha_no_Nariagari_[04]_[AniLibria]_[720p].mkv.txt"
         ];
         create_temp_files(path);
         assert_eq!(1, 1);
-        // delete_folder("temp");
+        delete_folder("temp");
     }
 
     #[test]
