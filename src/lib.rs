@@ -9,14 +9,54 @@ fn rename(dirEntry: fs::DirEntry) {
 
 #[cfg(test)]
 mod tests {
+    use std::fs::FileType;
     use std::ops::Add;
     use std::path::{Path, PathBuf};
-    use super::*;
+
     use tempfile::{NamedTempFile, tempfile};
 
-    fn create_temp_files(paths: Vec<&str>) {
+    use super::*;
+
+    #[test]
+    fn plexify_renames_existed_files() {
+        // setup
+        let path = vec![
+            "temp/Tate_no_Yuusha_no_Nariagari_[01]_[AniLibria]_[720p].mkv.txt",
+            "temp/dir1/Tate_no_Yuusha_no_Nariagari_[02]_[AniLibria]_[720p].mkv.txt",
+            "temp/dir2/Tate_no_Yuusha_no_Nariagari_[03]_[AniLibria]_[720p].mkv.txt",
+            "temp/dir2/dir3/Tate_no_Yuusha_no_Nariagari_[04]_[AniLibria]_[720p].mkv.txt",
+        ];
+        create_temp_files(&path);
+        // when
+        // then
+        let result_files = enumerate_files_in_path("temp");
+        // cleanup
+        delete_folder("temp");
+    }
+
+    #[test]
+    fn method_returns_path_from_file_name() {
+        assert_eq!(get_path_from_file_name("temp/Tate_no_Yuusha_no_Nariagari_[01]_[AniLibria]_[720p].mkv.txt"), "temp");
+        assert_eq!(get_path_from_file_name("temp/dir1/Tate_no_Yuusha_no_Nariagari_[01]_[AniLibria]_[720p].mkv.txt"), "temp/dir1");
+        assert_eq!(get_path_from_file_name("temp/dir1/dir2/Tate_no_Yuusha_no_Nariagari_[01]_[AniLibria]_[720p].mkv.txt"), "temp/dir1/dir2");
+    }
+
+    #[test]
+    fn method_returns_files_in_path() {
+        let files = vec![
+            "temp/file1.txt",
+            "temp/dir1/file2.txt",
+            "temp/dir1/dir2/file3.txt",
+            "temp/dir3/file4.txt",
+        ];
+        create_temp_files(&files);
+        let result_files = enumerate_files_in_path("temp");
+        assert_eq!(result_files, files);
+    }
+
+    fn create_temp_files(paths: &[&str]) {
         for path in paths {
-            let dir_path = get_dirs_from_file_name(path);
+            let dir_path = get_path_from_file_name(path);
             let dir = Path::new(&dir_path);
             match fs::create_dir(&dir) {
                 Ok(_) => (),
@@ -25,6 +65,7 @@ mod tests {
             // Создаем и записываем в файл
             let mut file = match fs::File::create(path) {
                 Ok(file) => {
+
                     println!("Successfully created file {}", path);
                     file
                 }
@@ -38,12 +79,28 @@ mod tests {
         }
     }
 
-    fn get_dirs_from_file_name (path: &str) -> String {
+    fn enumerate_files_in_path(path: &str) -> Vec<String> {
+        return vec![];
+
+        // let mut entries = fs::read_dir("temp").unwrap();
+        // for entry in entries {
+        //     match entry {
+        //         Ok(it) => {
+        //             if it.file_type().unwrap().is_file() {
+        //                 println!("Name: {}", it.path().display())
+        //             }
+        //         },
+        //         Err(e) => (),
+        //     }
+        // }
+    }
+
+    fn get_path_from_file_name(path: &str) -> String {
         let mut full_path = String::new();
         let dirs: Vec<&str> = path.split("/").collect();
         for (i, v) in dirs.iter().enumerate() {
             if i == dirs.len() - 1 {
-                break
+                break;
             }
             if full_path.len() != 0 {
                 full_path.push_str("/");
@@ -58,25 +115,5 @@ mod tests {
             Ok(_) => println!("Successfully removed directory {}", path),
             Err(e) => println!("Error removing directory: {}", e),
         }
-    }
-
-    #[test]
-    fn method_renames_file_if_file_exists() {
-        let path = vec![
-            "temp/Tate_no_Yuusha_no_Nariagari_[01]_[AniLibria]_[720p].mkv.txt",
-            "temp/dir1/Tate_no_Yuusha_no_Nariagari_[02]_[AniLibria]_[720p].mkv.txt",
-            "temp/dir2/Tate_no_Yuusha_no_Nariagari_[03]_[AniLibria]_[720p].mkv.txt",
-            "temp/dir2/dir3/Tate_no_Yuusha_no_Nariagari_[04]_[AniLibria]_[720p].mkv.txt"
-        ];
-        create_temp_files(path);
-        assert_eq!(1, 1);
-        delete_folder("temp");
-    }
-
-    #[test]
-    fn method_returns_dirs_from_file_name() {
-        assert_eq!(get_dirs_from_file_name("temp/Tate_no_Yuusha_no_Nariagari_[01]_[AniLibria]_[720p].mkv.txt"), "temp");
-        assert_eq!(get_dirs_from_file_name("temp/dir1/Tate_no_Yuusha_no_Nariagari_[01]_[AniLibria]_[720p].mkv.txt"), "temp/dir1");
-        assert_eq!(get_dirs_from_file_name("temp/dir1/dir2/Tate_no_Yuusha_no_Nariagari_[01]_[AniLibria]_[720p].mkv.txt"), "temp/dir1/dir2");
     }
 }
