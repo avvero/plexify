@@ -19,17 +19,20 @@ mod tests {
             let dir_path = get_dirs_from_file_name(path);
             let dir = Path::new(&dir_path);
             match fs::create_dir(&dir) {
-                Ok(_) => println!("Successfully created temp directory"),
+                Ok(_) => (),
                 Err(e) => println!("Error creating temp directory: {}", e),
             }
             // Создаем и записываем в файл
             let mut file = match fs::File::create(path) {
-                Ok(file) => file,
+                Ok(file) => {
+                    println!("Successfully created file {}", path);
+                    file
+                }
                 Err(e) => panic!("Couldn't create file: {}", e),
             };
             let body = format!("I'm: {}", path);
             match file.write_all(body.as_bytes()) {
-                Ok(_) => println!("Successfully wrote to file"),
+                Ok(_) => (),
                 Err(e) => println!("Error writing to file: {}", e),
             }
         }
@@ -52,7 +55,7 @@ mod tests {
 
     fn delete_folder(path: &str) {
         match fs::remove_dir_all(path) {
-            Ok(_) => println!("Successfully removed directory"),
+            Ok(_) => println!("Successfully removed directory {}", path),
             Err(e) => println!("Error removing directory: {}", e),
         }
     }
